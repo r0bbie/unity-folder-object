@@ -1,8 +1,8 @@
 {
-    "name": "Changingday.Common.Editor",
+    "name": "R0bbie.FolderObject.Editor",
     "rootNamespace": "",
     "references": [
-        "Changingday.Common"
+        "R0bbie.FolderObject"
     ],
     "includePlatforms": [
         "Editor"

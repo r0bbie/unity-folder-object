@@ -1,0 +1,19 @@
+{
+  "name": "com.r0bbie.folderobject",
+  "displayName": "Folder Object",
+  "version": "1.0.0",
+  "unity": "2021.3",
+  "author": {
+    "name" : "Robbie Cargill",
+    "email" : "contact@robbiecargill.com",
+    "url" : "https://r0bbie.com"
+  },
+  "description": "Folder Object component, allowing more effective use of empty GameObjects for organising your scene, avoiding frequent problems associated with accidental offsets.",
+  "keywords": [
+    "folder",
+    "editor",
+    "inspector",
+    "organisation",
+    "tidying"
+  ]
+}

@@ -7,20 +7,28 @@ using UnityEditor;
 
 namespace R0bbie.FolderObject
 {
-
+	/// <summary>
+	/// Attach this component to a GameObject to hide the transform component and force values to defaults, essentially have the object behave as a "folder" for organisation, without any relative impact on the transforms of child objects 
+	/// </summary>
 	[ExecuteInEditMode]
 	[AddComponentMenu("Miscellaneous/Folder Object")]
 	public class FolderObject : MonoBehaviour
 	{
-
-		public bool lockFolder;
-		public bool hideChildrenInHierarchy;
-
 		
 		/// <summary>
 		/// On Start, ensure transform hasn't been accidentally manipulated somehow
 		/// </summary>
 		void Start()
+		{
+			ResetTransform();
+		}
+
+
+		/// <summary>
+		/// Forces transform reset
+		/// </summary>
+		/// <returns></returns>
+		public void ResetTransform()
 		{
 			gameObject.transform.localPosition = new Vector3(0.0f, 0.0f, 0.0f);
 			gameObject.transform.localEulerAngles = new Vector3(0.0f, 0.0f, 0.0f);
@@ -35,30 +43,6 @@ namespace R0bbie.FolderObject
 		{
 #if UNITY_EDITOR
 			gameObject.GetComponent<Transform>().hideFlags = HideFlags.None;
-
-			if (lockFolder)
-			{
-				lockFolder = false;
-
-				gameObject.hideFlags &= ~HideFlags.NotEditable;
-
-				foreach (Component component in GetComponents(typeof(Component)))
-					component.hideFlags &= ~HideFlags.NotEditable;
-
-				Tools.current = Tool.Move;
-
-				EditorUtility.SetDirty(this);
-			}
-
-			if (hideChildrenInHierarchy)
-			{
-				hideChildrenInHierarchy = false;
-
-				foreach (Transform child in transform)
-					child.hideFlags &= ~HideFlags.HideInHierarchy;
-
-				EditorApplication.RepaintHierarchyWindow();
-			}
 #endif
 		}
 		

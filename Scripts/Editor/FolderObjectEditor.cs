@@ -13,15 +13,30 @@ namespace R0bbie.FolderObject.Editor
 	{
 		private FolderObject folderObject;
 
-		private bool lockFolder;
-		private bool hideChildrenInHierarchy;
-
 		Tool lastTool = Tool.None;
 
 		
+		/// <summary>
+		/// On object select
+		/// </summary>
+		/// <returns></returns>
 		void OnEnable()
 		{
-
+			if (folderObject == null)
+				folderObject = target as FolderObject;
+			
+			// Zero out transform
+			folderObject.ResetTransform();
+			
+			// No tool selected on the folder object
+			lastTool = Tools.current;
+			Tools.current = Tool.None;
+			
+			// TODO: Remove any child objects before resetting transform, so that they remain consistent?
+			
+			// Make sure the folder object component is the first component on the object
+			if (folderObject.GetComponents<MonoBehaviour>()[0] != folderObject)
+				UnityEditorInternal.ComponentUtility.MoveComponentUp(folderObject);
 		}
 		
 
@@ -30,6 +45,7 @@ namespace R0bbie.FolderObject.Editor
 		/// </summary>
 		void OnDisable()
 		{
+			// On unselect, return to last editor tool
 			Tools.current = lastTool;
 		}
 
@@ -43,115 +59,28 @@ namespace R0bbie.FolderObject.Editor
 				folderObject = target as FolderObject;
 
 			folderObject.gameObject.GetComponent<Transform>().hideFlags = HideFlags.None;
-
-			lockFolder = false;
-			hideChildrenInHierarchy = false;
-
-			if (folderObject.lockFolder != lockFolder)
-			{
-				folderObject.gameObject.hideFlags &= ~HideFlags.NotEditable;
-
-				foreach (Component component in folderObject.GetComponents(typeof(Component)))
-					component.hideFlags &= ~HideFlags.NotEditable;
-
-				Tools.current = Tool.Move;
-
-				EditorUtility.SetDirty(folderObject);
-
-				folderObject.lockFolder = lockFolder;
-			}
-
-			if (folderObject.hideChildrenInHierarchy != hideChildrenInHierarchy)
-			{
-				foreach (Transform child in folderObject.transform)
-					child.hideFlags &= ~HideFlags.HideInHierarchy;
-
-				EditorApplication.RepaintHierarchyWindow();
-
-				folderObject.hideChildrenInHierarchy = hideChildrenInHierarchy;
-			}
-
 		}
 
 
 		/// <summary>
-		/// Called while object is selected in the inspector view
+		/// Called while object is selected in the inspector view to render custom inspector
 		/// </summary>
 		public override void OnInspectorGUI()
 		{
 			if (folderObject == null)
 				folderObject = target as FolderObject;
+			
+			// Ensure move/rotation tools etc remain disabled on this object
+			Tools.current = Tool.None;
 
 			if (folderObject.gameObject.GetComponent<Transform>().hideFlags != HideFlags.HideInInspector)
 				folderObject.gameObject.GetComponent<Transform>().hideFlags = HideFlags.HideInInspector;
-
-			lockFolder = folderObject.lockFolder;
-			hideChildrenInHierarchy = folderObject.hideChildrenInHierarchy;
 
 			GUILayout.Space(15);
 
 			EditorGUILayout.HelpBox("Folder object activated. Transform forced to defaults.\nRemove FolderObject component to bring back Transform window.", MessageType.Info);
 
 			GUILayout.Space(20);
-
-			if (GUI.changed)
-			{
-				if (folderObject.lockFolder != lockFolder)
-				{
-					if (lockFolder)
-					{
-						folderObject.gameObject.hideFlags |= HideFlags.NotEditable;
-
-						foreach (Component component in folderObject.GetComponents(typeof(Component)))
-						{
-							if (component == folderObject)
-							{
-								component.hideFlags &= ~HideFlags.NotEditable;
-							}
-							else
-							{
-								component.hideFlags |= HideFlags.NotEditable;
-							}
-						}
-
-						EditorUtility.SetDirty(folderObject);
-					}
-					else
-					{
-						folderObject.gameObject.hideFlags &= ~HideFlags.NotEditable;
-
-						foreach (Component component in folderObject.GetComponents(typeof(Component)))
-						{
-							component.hideFlags &= ~HideFlags.NotEditable;
-						}
-
-						Tools.current = Tool.Move;
-
-						EditorUtility.SetDirty(folderObject);
-					}
-
-					folderObject.lockFolder = lockFolder;
-				}
-
-				if (folderObject.hideChildrenInHierarchy != hideChildrenInHierarchy)
-				{
-					if (hideChildrenInHierarchy)
-					{
-						foreach (Transform child in folderObject.transform)
-							child.hideFlags |= HideFlags.HideInHierarchy;
-					}
-					else
-					{
-						foreach (Transform child in folderObject.transform)
-							child.hideFlags &= ~HideFlags.HideInHierarchy;
-					}
-
-					EditorApplication.RepaintHierarchyWindow();
-					folderObject.hideChildrenInHierarchy = hideChildrenInHierarchy;
-				}
-
-				EditorUtility.SetDirty(target);
-			}
 		}
 		
 		
